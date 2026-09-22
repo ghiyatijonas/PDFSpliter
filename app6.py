@@ -73,7 +73,7 @@ st.markdown("""
 
 st.write("**Dette værktøj splitter automatisk store PDF-filer baseret på fakturanumre. Den understøtter mange forskellige formater og spalte-layouts på samme tid.**")
 
-tab1, tab2 = st.tabs(["✂️ Split PDF (Intelligent Genkendelse)", "➕ Saml PDF-filer"])
+tab1, tab2 = st.tabs(["✂️ **Split PDF** (Intelligent Genkendelse)", "➕ **Saml PDF-filer**"])
 
 # HJÆLPEFUNKTION: Den intelligente søgemaskine til fakturanumre
 def find_invoice_number(text):
