@@ -72,7 +72,6 @@ st.markdown(f"""
     }}
 
     /* 🟢 GRØN BAGGRUND PÅ UPLOAD OG ANALYSER/SAML KNAPPERNE 🟢 */
-    /* Rammer 'Browse files' / Upload-knappen i Streamlit */
     [data-testid="stFileUploaderDropzone"] button {{
         background-color: #2bc473 !important;
         color: white !important;
@@ -85,7 +84,6 @@ st.markdown(f"""
         background-color: #229a59 !important;
     }}
 
-    /* Rammer 'Analyser og Split' samt 'Saml filer nu' knapperne */
     div.stButton > button {{
         background-color: #2bc473 !important;
         color: white !important;
@@ -111,7 +109,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
-# --- HJÆLPEFUNKTION TIL FAKTURA-SØGNING ---
+# --- HJÆLPEFUNKTION TIL FAKTURA-SØGNING (RETTET) ---
 def find_invoice_number(text):
     clean_text = " ".join(text.split())
     text_lowercase = text.lower()
@@ -119,7 +117,7 @@ def find_invoice_number(text):
     if "fakturanr" in text_lowercase:
         colon_numbers = re.findall(r":\s*(\d+)", text)
         if colon_numbers:
-            return colon_numbers
+            return str(colon_numbers[0]) # Sørger for altid at returnere en ren tekststreng
             
     standard_patterns = [
         r"(?:faktura|invoice)(?:\s*nr|\s*no|\s*nummer)?[:.\s]*#?\s*(\d+)",
@@ -128,12 +126,12 @@ def find_invoice_number(text):
     for pattern in standard_patterns:
         match = re.search(pattern, clean_text, re.IGNORECASE)
         if match:
-            return match.group(1)
+            return str(match.group(1))
             
     if "faktura" in text_lowercase or "invoice" in text_lowercase:
         potential_numbers = re.findall(r"\b\d{4,8}\b", clean_text)
         if potential_numbers:
-            return potential_numbers
+            return str(potential_numbers[0])
             
     return None
 
@@ -161,7 +159,8 @@ if st.session_state.valgt_menu == "split":
                             invoice_chunks.append((inv_id, [idx]))
                         else:
                             if invoice_chunks:
-                                invoice_chunks[-1].append(idx)
+                                # RETTELSE: Vi lægger sidetallet ind i listen (det andet element i tuplen)
+                                invoice_chunks[-1][1].append(idx)
                             else:
                                 invoice_chunks.append(("ukendt_faktura", [idx]))
                     
@@ -199,7 +198,7 @@ if st.session_state.valgt_menu == "split":
                             for inv_id, pages in invoice_chunks:
                                 st.write(f"• **Faktura #{inv_id}**: Indeholder {len(pages)} side(r) (Sider i alt: {[p+1 for p in pages]})")
         except Exception as e:
-            st.error(f"Der skete en fejl under behandlingen af PDF'en: {e}")
+            st.error(f"Der skete en fejl under behandlingen av PDF'en: {e}")
 
 # --- SEKTION 2: SAML PDF-FILER ---
 elif st.session_state.valgt_menu == "saml":
