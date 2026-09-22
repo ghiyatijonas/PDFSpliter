@@ -95,6 +95,25 @@ st.markdown(f"""
     div.stButton > button:hover {{
         background-color: #229a59 !important;
     }}
+
+    /* 🎁 GØR DOWNLOAD ZIP-KNAPPEN EKSTRA TYDELIG OG STOR 🎁 */
+    div.stDownloadButton > button {{
+        background-color: #2bc473 !important;
+        color: white !important;
+        font-size: 20px !important;       /* Større tekst */
+        font-weight: bold !important;
+        padding: 1rem 3rem !important;    /* Masser af luft så den bliver stor */
+        border-radius: 8px !important;
+        border: 2px solid #229a59 !important;
+        box-shadow: 0 4px 10px rgba(43, 196, 115, 0.3) !important; /* Grøn glød/skygge */
+        margin-top: 20px !important;
+        width: 100% !important;           /* Strækker sig over hele bredden */
+    }}
+    div.stDownloadButton > button:hover {{
+        background-color: #229a59 !important;
+        box-shadow: 0 6px 14px rgba(43, 196, 115, 0.5) !important;
+        transform: translateY(-1px);
+    }}
     </style>
     
     <div class="menu-container">
@@ -109,7 +128,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
-# --- HJÆLPEFUNKTION TIL FAKTURA-SØGNING (RETTET) ---
+# --- HJÆLPEFUNKTION TIL FAKTURA-SØGNING ---
 def find_invoice_number(text):
     clean_text = " ".join(text.split())
     text_lowercase = text.lower()
@@ -117,7 +136,7 @@ def find_invoice_number(text):
     if "fakturanr" in text_lowercase:
         colon_numbers = re.findall(r":\s*(\d+)", text)
         if colon_numbers:
-            return str(colon_numbers[0]) # Sørger for altid at returnere en ren tekststreng
+            return str(colon_numbers[0])
             
     standard_patterns = [
         r"(?:faktura|invoice)(?:\s*nr|\s*no|\s*nummer)?[:.\s]*#?\s*(\d+)",
@@ -159,7 +178,6 @@ if st.session_state.valgt_menu == "split":
                             invoice_chunks.append((inv_id, [idx]))
                         else:
                             if invoice_chunks:
-                                # RETTELSE: Vi lægger sidetallet ind i listen (det andet element i tuplen)
                                 invoice_chunks[-1][1].append(idx)
                             else:
                                 invoice_chunks.append(("ukendt_faktura", [idx]))
@@ -186,19 +204,19 @@ if st.session_state.valgt_menu == "split":
                         
                         zip_buffer.seek(0)
                         
+                        # Stor og meget tydelig download-knap
                         st.download_button(
-                            label="🎁 Download som ZIP",
+                            label="🎁 Tryk her for at downloade alle 45 fakturaer (ZIP-fil)",
                             data=zip_buffer,
                             file_name="splittede_fakturaer.zip",
-                            mime="application/zip",
-                            use_container_width=True
+                            mime="application/zip"
                         )
                         
                         with st.expander("Se detaljeret oversigt over opdelingen"):
                             for inv_id, pages in invoice_chunks:
                                 st.write(f"• **Faktura #{inv_id}**: Indeholder {len(pages)} side(r) (Sider i alt: {[p+1 for p in pages]})")
         except Exception as e:
-            st.error(f"Der skete en fejl under behandlingen av PDF'en: {e}")
+            st.error(f"Der skete en fejl under behandlingen af PDF'en: {e}")
 
 # --- SEKTION 2: SAML PDF-FILER ---
 elif st.session_state.valgt_menu == "saml":
@@ -228,9 +246,6 @@ elif st.session_state.valgt_menu == "saml":
                     st.download_button(
                         label="📥 Download samlet PDF",
                         data=output_buffer,
-                        file_name=output_filename,
-                        mime="application/pdf",
-                        use_container_width=True
-                    )
-                except Exception as e:
-                    st.error(f"Kunne ikke samle filerne: {e}")
+                        file_name=output_filename,mime="application/pdf")
+                except Exception as e:st.error(
+                    f"Kunne ikke samle filerne: {e}")
