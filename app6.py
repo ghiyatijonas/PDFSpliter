@@ -16,16 +16,13 @@ if "valgt_menu" not in st.session_state:
     st.session_state.valgt_menu = None
 
 # --- PARSE QUERY PARAMS (Modtag klik fra de store HTML knapper) ---
-# Streamlits knapper i HTML sender parametre via URL'en når der klikkes
 params = st.query_params
 if "menu" in params:
     st.session_state.valgt_menu = params["menu"]
-    # Rens URL med det samme så siden ikke reloader i uendelighed
     st.query_params.clear()
     st.rerun()
 
 # --- GENERER DE 2 GIGANTISKE MENU-KNAPPER VIA RENT HTML/CSS ---
-# Dette er 100% isoleret fra Streamlits egne knapper, så intet bliver blandet sammen
 is_split_active = "active" if st.session_state.valgt_menu == "split" else ""
 is_saml_active = "active" if st.session_state.valgt_menu == "saml" else ""
 
@@ -64,7 +61,6 @@ st.markdown(f"""
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }}
-    /* Hvis knappen er aktiv, bliver den permanent flot grøn */
     .huge-menu-btn.active {{
         background-color: #2bc473;
         color: white;
@@ -73,6 +69,33 @@ st.markdown(f"""
     .huge-menu-btn span {{
         font-size: 32px;
         margin-bottom: 10px;
+    }}
+
+    /* 🟢 GRØN BAGGRUND PÅ UPLOAD OG ANALYSER/SAML KNAPPERNE 🟢 */
+    /* Rammer 'Browse files' / Upload-knappen i Streamlit */
+    [data-testid="stFileUploaderDropzone"] button {{
+        background-color: #2bc473 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 0.5rem 1.5rem !important;
+        font-weight: 500 !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] button:hover {{
+        background-color: #229a59 !important;
+    }}
+
+    /* Rammer 'Analyser og Split' samt 'Saml filer nu' knapperne */
+    div.stButton > button {{
+        background-color: #2bc473 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 0.5rem 1.5rem !important;
+        font-weight: 500 !important;
+    }}
+    div.stButton > button:hover {{
+        background-color: #229a59 !important;
     }}
     </style>
     
@@ -96,7 +119,7 @@ def find_invoice_number(text):
     if "fakturanr" in text_lowercase:
         colon_numbers = re.findall(r":\s*(\d+)", text)
         if colon_numbers:
-            return colon_numbers[0]
+            return colon_numbers
             
     standard_patterns = [
         r"(?:faktura|invoice)(?:\s*nr|\s*no|\s*nummer)?[:.\s]*#?\s*(\d+)",
@@ -110,7 +133,7 @@ def find_invoice_number(text):
     if "faktura" in text_lowercase or "invoice" in text_lowercase:
         potential_numbers = re.findall(r"\b\d{4,8}\b", clean_text)
         if potential_numbers:
-            return potential_numbers[0]
+            return potential_numbers
             
     return None
 
@@ -126,7 +149,6 @@ if st.session_state.valgt_menu == "split":
             total_pages = len(reader.pages)
             st.info(f"Filen blev indlæst korrekt. Total antal sider: {total_pages}")
             
-            # Da vi ikke længere har global CSS-støj, vil denne knap være helt standard grå og matche upload
             if st.button("Analyser og Split PDF"):
                 with st.spinner("Scanner sider med den indbyggede intelligente søgemaskine..."):
                     invoice_chunks = []
@@ -139,7 +161,7 @@ if st.session_state.valgt_menu == "split":
                             invoice_chunks.append((inv_id, [idx]))
                         else:
                             if invoice_chunks:
-                                invoice_chunks[-1][1].append(idx)
+                                invoice_chunks[-1].append(idx)
                             else:
                                 invoice_chunks.append(("ukendt_faktura", [idx]))
                     
