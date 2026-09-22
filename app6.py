@@ -230,5 +230,6 @@ elif st.session_state.valgt_menu == "saml":
                         data=output_buffer,
                         file_name=output_filename,
                         mime="application/pdf",
-                        use_container_width=True)
-                    except Exception as e:st.error(f"Kunne ikke samle filerne: {e}")
+                        use_container_width=True
+                    )
+                except Exception as e:st.error(f"Kunne ikke samle filerne: {e}")
