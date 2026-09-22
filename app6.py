@@ -16,12 +16,12 @@ st.markdown("""
     <style>
     /* Styling af de to store centraliserede menu-knapper */
     div.stButton > button {
-        width: 300px !important;       /* Ca. 10 cm i bredden på skærmen */
-        height: 150px !important;      /* Ca. 5 cm i højden på skærmen */
-        font-size: 100px !important;    /* Stor, læsbar tekst */
+        width: 380px !important;       /* Ca. 10 cm i bredden på skærmen */
+        height: 190px !important;      /* Ca. 5 cm i højden på skærmen */
+        font-size: 24px !important;    /* Stor, læsbar tekst */
         font-weight: bold !important;
-        border-radius: 20px !important;
-        border: 4px solid #dee2e6 !important;
+        border-radius: 12px !important;
+        border: 2px solid #dee2e6 !important;
         background-color: #f8f9fa !important;
         color: #212529 !important;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
