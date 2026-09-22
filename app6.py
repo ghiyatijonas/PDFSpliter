@@ -32,7 +32,7 @@ st.markdown(f"""
         display: flex;
         justify-content: center;
         gap: 20px;
-        margin: 30px 0;
+        margin: 20px 0;
     }}
     .huge-menu-btn {{
         width: 300px;
