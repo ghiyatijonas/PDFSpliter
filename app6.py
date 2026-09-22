@@ -11,13 +11,13 @@ st.set_page_config(page_title="PDF Faktura Værktøj", page_icon="📄", layout=
 st.title("📄 PDF Faktura Splitter & Samler")
 st.write("**Dette værktøj splitter automatisk store PDF-filer baseret på fakturanumre, eller samler flere filer til én.**")
 
-# --- CSS STYLING AF DE 2 STORE KNAPPER ---
+# --- DESIGN AF KNAPPER (OPDATERET & SEPARERET) ---
 st.markdown("""
     <style>
-    /* Styling af de to store centraliserede menu-knapper */
-    div.stButton > button {
-        width: 380px !important;       /* Ca. 10 cm i bredden på skærmen */
-        height: 190px !important;      /* Ca. 5 cm i højden på skærmen */
+    /* 1. STYLING AF DE TO STORE MENU-KNAPPER I TOPPEN */
+    .menu-box div.stButton > button {
+        width: 380px !important;       /* Ca. 10 cm i bredden */
+        height: 190px !important;      /* Ca. 5 cm i højden */
         font-size: 24px !important;    /* Stor, læsbar tekst */
         font-weight: bold !important;
         border-radius: 12px !important;
@@ -26,11 +26,10 @@ st.markdown("""
         color: #212529 !important;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
         transition: all 0.2s ease-in-out !important;
-        white-space: normal !important; /* Tillader tekstombrydning hvis nødvendigt */
+        white-space: normal !important;
     }
     
-    /* Effekt når musen holdes over menu-knapperne */
-    div.stButton > button:hover {
+    .menu-box div.stButton > button:hover {
         border-color: #2bc473 !important;
         background-color: #e8f7ee !important;
         color: #229a59 !important;
@@ -38,27 +37,29 @@ st.markdown("""
         box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
     }
 
-    /* Gør den aktive knap permanent grøn og fremhævet */
+    /* Gør den aktive menu-knap permanent grøn */
     .active-btn div.stButton > button {
         background-color: #2bc473 !important;
         color: white !important;
         border-color: #229a59 !important;
     }
     
-    /* Styling af den mindre "Aktion"-knap inde i sektionerne (Analyser / Saml) */
-    div[data-testid="stForm"] div.stButton > button, 
+    /* 2. STYLING AF AKTION-KNAPPERNE (ANALYSER & SAML) - ALMINDELIG STØRRELSE & GRØN */
     .action-container div.stButton > button {
-        width: auto !important;
-        height: auto !important;
-        font-size: 16px !important;
-        background-color: #2bc473 !important;
-        color: white !important;
-        padding: 0.5rem 2rem !important;
+        width: auto !important;        /* Almindelig bredde baseret på tekst */
+        height: auto !important;       /* Almindelig højde */
+        font-size: 16px !important;    /* Normal tekststørrelse */
+        font-weight: 500 !important;
+        background-color: #2bc473 !important; /* Grøn baggrund */
+        color: white !important;       /* Hvid tekst */
+        padding: 0.6rem 2rem !important; /* Klassisk knap-luft */
+        border-radius: 6px !important;
         border: none !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     }
-    div[data-testid="stForm"] div.stButton > button:hover,
+    
     .action-container div.stButton > button:hover {
-        background-color: #229a59 !important;
+        background-color: #229a59 !important; /* Mørkere grøn ved hover */
         color: white !important;
     }
     </style>
@@ -66,16 +67,14 @@ st.markdown("""
 
 
 # --- NAVIGATION LOGIK VIA SESSION STATE ---
-# Vi bruger session_state til at huske, hvilken menu der er aktiv, uden at siden glemmer det ved upload
 if "valgt_menu" not in st.session_state:
-    st.session_state.valgt_menu = None  # Starttilstand (intet valgt endnu)
+    st.session_state.valgt_menu = None
 
-# Lav 5 kolonner for at centrere de to store knapper i midten af skærmen
-# Kolonne 2 og 4 holder knapperne, kolonne 1, 3 og 5 skaber luft/centrering
 col1, col2, col3, col4, col5 = st.columns([1, 2, 0.2, 2, 1])
 
 with col2:
-    # Hvis denne menu er valgt, giv containeren en speciel CSS-klasse for at gøre den grøn
+    # Vi wrapper menu-knappen i en 'menu-box' klasse
+    st.markdown('<div class="menu-box">', unsafe_allow_html=True)
     if st.session_state.valgt_menu == "split":
         st.markdown('<div class="active-btn">', unsafe_allow_html=True)
     
@@ -85,8 +84,10 @@ with col2:
         
     if st.session_state.valgt_menu == "split":
         st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col4:
+    st.markdown('<div class="menu-box">', unsafe_allow_html=True)
     if st.session_state.valgt_menu == "saml":
         st.markdown('<div class="active-btn">', unsafe_allow_html=True)
         
@@ -96,8 +97,8 @@ with col4:
         
     if st.session_state.valgt_menu == "saml":
         st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Tilføj en vandret skillelinje under menuen
 st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
 
@@ -139,7 +140,7 @@ if st.session_state.valgt_menu == "split":
             total_pages = len(reader.pages)
             st.info(f"Filen blev indlæst korrekt. Total antal sider: {total_pages}")
             
-            # Container-klasse til at styre, at denne knap IKKE bliver 5x10 cm stor
+            # Her tvinger vi action-container klassen ned over knappen
             st.markdown('<div class="action-container">', unsafe_allow_html=True)
             analyser_knap = st.button("Analyser og Split PDF")
             st.markdown('</div>', unsafe_allow_html=True)
@@ -207,6 +208,7 @@ elif st.session_state.valgt_menu == "saml":
         st.info(f"{len(uploaded_files)} filer klar til samling.")
         output_filename = st.text_input("Navn på den samlede PDF-fil:", value="samlet_dokument.pdf")
         
+        # Her tvinger vi action-container klassen ned over knappen
         st.markdown('<div class="action-container">', unsafe_allow_html=True)
         saml_knap = st.button("Saml filer nu")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -230,6 +232,5 @@ elif st.session_state.valgt_menu == "saml":
                         data=output_buffer,
                         file_name=output_filename,
                         mime="application/pdf",
-                        use_container_width=True
                     )
                 except Exception as e:st.error(f"Kunne ikke samle filerne: {e}")
