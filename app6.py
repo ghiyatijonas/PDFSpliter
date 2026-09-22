@@ -35,8 +35,8 @@ st.markdown(f"""
         margin: 30px 0;
     }}
     .huge-menu-btn {{
-        width: 380px;
-        height: 190px;
+        width: 300px;
+        height: 150px;
         font-size: 24px;
         font-weight: bold;
         border-radius: 12px;
