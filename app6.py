@@ -18,7 +18,7 @@ st.markdown("""
     div.stButton > button {
         width: 300px !important;       /* Ca. 10 cm i bredden på skærmen */
         height: 150px !important;      /* Ca. 5 cm i højden på skærmen */
-        font-size: 50px !important;    /* Stor, læsbar tekst */
+        font-size: 100px !important;    /* Stor, læsbar tekst */
         font-weight: bold !important;
         border-radius: 20px !important;
         border: 4px solid #dee2e6 !important;
