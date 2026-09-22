@@ -9,22 +9,65 @@ st.set_page_config(page_title="PDF Faktura Værktøj", page_icon="📄", layout=
 
 st.title("📄 PDF Faktura Splitter & Samler")
 
-# --- FARVEÆNDRING AF KNAP START ---
+# --- DESIGN AF KNAP OG TABS START CSS---
 st.markdown("""
     <style>
+    /* Styling af den store knap */
     div.stButton > button {
         background-color: #2bc473; /* Flot grøn farve */
         color: white;
         border-radius: 5px;
         border: none;
+        padding: 0.5rem 1rem;
     }
     div.stButton > button:hover {
-        background-color: #229a59; /* Mørkere grøn når musen holdes over */
+        background-color: #229a59; /* Mørkere grøn ved hover */
         color: white;
+    }
+
+    /* 📄 STYLING AF TABS (FANER) */
+    /* Containeren omkring alle faner */
+    div[data-testid="stTabs"] {
+        background-color: #f8f9fa; /* Lys grå baggrund bag fanerne */
+        padding: 5px 5px 0px 5px;
+        border-radius: 8px 8px 0px 0px;
+        border: 1px solid #e0e0e0;
+        border-bottom: none;
+    }
+
+    /* Den enkelte fane som ikke er valgt */
+    button[data-testid="stMarkdownContainer"] p {
+        font-weight: 500;
+    }
+    
+    div[data-testid="stTabs"] button {
+        background-color: #e9ecef; /* Grå baggrund på inaktive faner */
+        border: 1px solid #dee2e6 !important;
+        border-bottom: none !important;
+        border-radius: 6px 6px 0px 0px;
+        margin-right: 4px;
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+    }
+
+    /* Fanen når musen holdes over */
+    div[data-testid="stTabs"] button:hover {
+        background-color: #dee2e6;
+        color: #000000;
+    }
+
+    /* Den aktive/valgte fane */
+    div[data-testid="stTabs"] button[aria-selected="true"] {
+        background-color: #ffffff !important; /* Hvid baggrund på den aktive fane */
+        border-top: 3px solid #2bc473 !important; /* Grøn topbar for at matche knappen */
+        border-left: 1px solid #dee2e6 !important;
+        border-right: 1px solid #dee2e6 !important;
+        color: #2bc473 !important;
     }
     </style>
 """, unsafe_allow_html=True)
-# --- FARVEÆNDRING AF KNAP SLUT ---
+# --- CSS DESIGN AF KNAP OG TABS SLUT ---
+
 
 st.write("**Dette værktøj splitter automatisk store PDF-filer baseret på fakturanumre. Den understøtter mange forskellige formater og spalte-layouts på samme tid.**")
 
