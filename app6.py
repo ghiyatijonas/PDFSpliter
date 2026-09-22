@@ -11,93 +11,81 @@ st.set_page_config(page_title="PDF Faktura Værktøj", page_icon="📄", layout=
 st.title("📄 PDF Faktura Splitter & Samler")
 st.write("**Dette værktøj splitter automatisk store PDF-filer baseret på fakturanumre, eller samler flere filer til én.**")
 
-# --- DESIGN AF KNAPPER (RETTET TIL STREMLIT STANDARD STIL) ---
-st.markdown("""
-    <style>
-    /* 1. FORCE DE TO MENU-KNAPPER I TOPPEN TIL AT VÆRE STORE */
-    .menu-box button {
-        width: 380px !important;       /* Ca. 10 cm i bredden */
-        height: 190px !important;      /* Ca. 5 cm i højden */
-        font-size: 24px !important;    /* Stor, læsbar tekst */
-        font-weight: bold !important;
-        border-radius: 12px !important;
-        border: 2px solid #dee2e6 !important;
-        background-color: #f8f9fa !important;
-        color: #212529 !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-        transition: all 0.2s ease-in-out !important;
-        white-space: normal !important;
-        display: block !important;
-    }
-    
-    .menu-box button:hover {
-        border-color: #2bc473 !important;
-        background-color: #e8f7ee !important;
-        color: #229a59 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
-    }
-
-    /* Gør den aktive menu-knap permanent grøn */
-    .active-btn button {
-        background-color: #2bc473 !important;
-        color: white !important;
-        border-color: #229a59 !important;
-    }
-    
-    /* 2. NULSTIL AKTION-KNAPPERNE SÅ DE MATCHER UPLOAD-KNAPPEN (STANDARD GRÅ) */
-    .action-container button {
-        width: auto !important;        /* Almindelig bredde */
-        height: auto !important;       /* Almindelig højde */
-        font-size: 14px !important;    /* Matcher Streamlit standard */
-        font-weight: normal !important;
-        background-color: rgb(243, 244, 246) !important; /* Præcis samme grå som Upload-knappen */
-        color: rgb(49, 51, 63) !important;             /* Standard mørk tekstfarve */
-        padding: 0.25rem 0.75rem !important;           /* Standard knap-luft */
-        border-radius: 0.5rem !important;              /* Afrundede hjørner som upload */
-        border: 1px solid rgba(49, 51, 63, 0.2) !important; /* Diskret kant */
-        box-shadow: none !important;
-        transform: none !important;
-    }
-    
-    .action-container button:hover {
-        border-color: #2bc473 !important; /* Grøn kant ved hover for at vise aktivitet */
-        color: #229a59 !important;
-        background-color: rgb(243, 244, 246) !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-
-# --- NAVIGATION LOGIK VIA SESSION STATE ---
+# initialiser session state navigation, hvis det ikke findes
 if "valgt_menu" not in st.session_state:
     st.session_state.valgt_menu = None
 
-col1, col2, col3, col4, col5 = st.columns([1, 2, 0.2, 2, 1])
+# --- PARSE QUERY PARAMS (Modtag klik fra de store HTML knapper) ---
+# Streamlits knapper i HTML sender parametre via URL'en når der klikkes
+params = st.query_params
+if "menu" in params:
+    st.session_state.valgt_menu = params["menu"]
+    # Rens URL med det samme så siden ikke reloader i uendelighed
+    st.query_params.clear()
+    st.rerun()
 
-with col2:
-    if st.session_state.valgt_menu == "split":
-        st.markdown('<div class="menu-box active-btn">', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="menu-box">', unsafe_allow_html=True)
-        
-    if st.button("✂️\n\nSplit PDF\n(Intelligent)"):
-        st.session_state.valgt_menu = "split"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+# --- GENERER DE 2 GIGANTISKE MENU-KNAPPER VIA RENT HTML/CSS ---
+# Dette er 100% isoleret fra Streamlits egne knapper, så intet bliver blandet sammen
+is_split_active = "active" if st.session_state.valgt_menu == "split" else ""
+is_saml_active = "active" if st.session_state.valgt_menu == "saml" else ""
 
-with col4:
-    if st.session_state.valgt_menu == "saml":
-        st.markdown('<div class="menu-box active-btn">', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="menu-box">', unsafe_allow_html=True)
-        
-    if st.button("➕\n\nSaml PDFer\n(Merge)"):
-        st.session_state.valgt_menu = "saml"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown("<br><hr><br>", unsafe_allow_html=True)
+st.markdown(f"""
+    <style>
+    .menu-container {{
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 30px 0;
+    }}
+    .huge-menu-btn {{
+        width: 380px;
+        height: 190px;
+        font-size: 24px;
+        font-weight: bold;
+        border-radius: 12px;
+        border: 2px solid #dee2e6;
+        background-color: #f8f9fa;
+        color: #212529;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: all 0.2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        text-align: center;
+        line-height: 1.4;
+    }}
+    .huge-menu-btn:hover {{
+        border-color: #2bc473;
+        background-color: #e8f7ee;
+        color: #229a59;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }}
+    /* Hvis knappen er aktiv, bliver den permanent flot grøn */
+    .huge-menu-btn.active {{
+        background-color: #2bc473;
+        color: white;
+        border-color: #229a59;
+    }}
+    .huge-menu-btn span {{
+        font-size: 32px;
+        margin-bottom: 10px;
+    }}
+    </style>
+    
+    <div class="menu-container">
+        <a href="?menu=split" target="_self" class="huge-menu-btn {is_split_active}">
+            <span>✂️</span>Split PDF<br><small style="font-size:14px; font-weight:normal;">(Intelligent)</small>
+        </a>
+        <a href="?menu=saml" target="_self" class="huge-menu-btn {is_saml_active}">
+            <span>➕</span>Saml PDFer<br><small style="font-size:14px; font-weight:normal;">(Merge)</small>
+        </a>
+    </div>
+    <br><hr><br>
+""", unsafe_allow_html=True)
 
 
 # --- HJÆLPEFUNKTION TIL FAKTURA-SØGNING ---
@@ -138,13 +126,9 @@ if st.session_state.valgt_menu == "split":
             total_pages = len(reader.pages)
             st.info(f"Filen blev indlæst korrekt. Total antal sider: {total_pages}")
             
-            # Action-container sikrer, at knappen bliver lille og grå som upload-knappen
-            st.markdown('<div class="action-container">', unsafe_allow_html=True)
-            analyser_knap = st.button("Analyser og Split PDF")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            if analyser_knap:
-                with st.spinner("Scanner sider..."):
+            # Da vi ikke længere har global CSS-støj, vil denne knap være helt standard grå og matche upload
+            if st.button("Analyser og Split PDF"):
+                with st.spinner("Scanner sider med den indbyggede intelligente søgemaskine..."):
                     invoice_chunks = []
                     
                     for idx, page in enumerate(reader.pages):
@@ -160,9 +144,9 @@ if st.session_state.valgt_menu == "split":
                                 invoice_chunks.append(("ukendt_faktura", [idx]))
                     
                     if not invoice_chunks:
-                        st.error("Kunne ikke finde nogen fakturanumre på siderne.")
+                        st.error("Kunne ikke finde nogen fakturanumre på siderne. Tjek om PDF'en indeholder læsbar tekst.")
                     else:
-                        st.success(f"Færdig! Fandt {len(invoice_chunks)} individuelle fakturaer.")
+                        st.success(f"Færdig! Fandt {len(invoice_chunks)} individuelle fakturaer i dokumentet.")
                         
                         zip_buffer = io.BytesIO()
                         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
@@ -191,9 +175,9 @@ if st.session_state.valgt_menu == "split":
                         
                         with st.expander("Se detaljeret oversigt over opdelingen"):
                             for inv_id, pages in invoice_chunks:
-                                st.write(f"• **Faktura #{inv_id}**: Indeholder {len(pages)} side(r) (Sider: {[p+1 for p in pages]})")
+                                st.write(f"• **Faktura #{inv_id}**: Indeholder {len(pages)} side(r) (Sider i alt: {[p+1 for p in pages]})")
         except Exception as e:
-            st.error(f"Der skete en fejl: {e}")
+            st.error(f"Der skete en fejl under behandlingen af PDF'en: {e}")
 
 # --- SEKTION 2: SAML PDF-FILER ---
 elif st.session_state.valgt_menu == "saml":
@@ -206,11 +190,7 @@ elif st.session_state.valgt_menu == "saml":
         st.info(f"{len(uploaded_files)} filer klar til samling.")
         output_filename = st.text_input("Navn på den samlede PDF-fil:", value="samlet_dokument.pdf")
         
-        st.markdown('<div class="action-container">', unsafe_allow_html=True)
-        saml_knap = st.button("Saml filer nu")
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        if saml_knap:
+        if st.button("Saml filer nu"):
             with st.spinner("Samler dine PDF-filer..."):
                 try:
                     writer = PdfWriter()
