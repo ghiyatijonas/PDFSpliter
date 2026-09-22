@@ -5,9 +5,9 @@ import re
 import io
 import zipfile
 
-st.set_page_config(page_title="Universelt PDF Faktura Værktøj", page_icon="📄", layout="wide")
+st.set_page_config(page_title="PDF Faktura Værktøj", page_icon="📄", layout="wide")
 
-st.title("📄 Universelt PDF Faktura Splitter & Samler")
+st.title("📄 PDF Faktura Splitter & Samler")
 st.write("Dette værktøj splitter automatisk store PDF-filer baseret på fakturanumre. Den understøtter nu **mange forskellige formater og spalte-layouts** på samme tid.")
 
 tab1, tab2 = st.tabs(["✂️ Split PDF (Intelligent Genkendelse)", "➕ Saml PDF-filer"])
@@ -54,7 +54,7 @@ with tab1:
             st.info(f"Filen blev indlæst korrekt. Total antal sider: {total_pages}")
             
             if st.button("Analyser og Split PDF", type="primary"):
-                with st.spinner("Scanner sider med den intelligente søgemaskine..."):
+                with st.spinner("Scanner sider med den indbyggede intelligente søgemaskine..."):
                     invoice_chunks = []
                     
                     for idx, page in enumerate(reader.pages):
