@@ -8,6 +8,24 @@ import zipfile
 st.set_page_config(page_title="PDF Faktura Værktøj", page_icon="📄", layout="wide")
 
 st.title("📄 PDF Faktura Splitter & Samler")
+
+# --- FARVEÆNDRING AF KNAP START ---
+st.markdown("""
+    <style>
+    div.stButton > button {
+        background-color: #2bc473; /* Flot grøn farve */
+        color: white;
+        border-radius: 5px;
+        border: none;
+    }
+    div.stButton > button:hover {
+        background-color: #229a59; /* Mørkere grøn når musen holdes over */
+        color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
+# --- FARVEÆNDRING AF KNAP SLUT ---
+
 st.write("**Dette værktøj splitter automatisk store PDF-filer baseret på fakturanumre. Den understøtter mange forskellige formater og spalte-layouts på samme tid.**")
 
 tab1, tab2 = st.tabs(["✂️ Split PDF (Intelligent Genkendelse)", "➕ Saml PDF-filer"])
