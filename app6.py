@@ -45,19 +45,26 @@ st.markdown(f"""
     <br><hr><br>
 """, unsafe_allow_html=True)
 
+# 🔍 RETTET FUNKTION: Udtrækker fakturanummeret som en REN tekststreng uden klammer []
 def get_inv_num(text):
     clean = " ".join(text.split())
     low = text.lower()
+    
     if "fakturanr" in low:
         col = re.findall(r":\s*(\d+)", text)
-        if col: return str(col)
+        if col: 
+            return str(col[0]).strip() # Snupper det første rene tal i listen
+            
     pats = [r"(?:faktura|invoice)(?:\s*nr|\s*no|\s*nummer)?[:.\s]*#?\s*(\d+)", r"(?:inv|fak)[:.\s]*#?\s*(\d+)"]
     for p in pats:
         m = re.search(p, clean, re.IGNORECASE)
-        if m: return str(m.group(1))
+        if m: 
+            return str(m.group(1)).strip()
+            
     if "faktura" in low or "invoice" in low:
         pot = re.findall(r"\b\d{4,8}\b", clean)
-        if pot: return str(pot)
+        if pot: 
+            return str(pot[0]).strip()
     return None
 
 if st.session_state.menu == "split":
@@ -88,7 +95,10 @@ if st.session_state.menu == "split":
                             for p in p_idxs: writer.add_page(reader.pages[p])
                             p_buf = io.BytesIO()
                             writer.write(p_buf)
-                            name = f"faktura_{i_id}_{len(p_idxs)}sider.pdf" if len(p_idxs) >= 2 else f"faktura_{i_id}.pdf"
+                            
+                            # Sikrer rene og pæne filnavne i ZIP-filen
+                            clean_id = re.sub(r'[\\/*?:"<>|]', "", i_id)
+                            name = f"faktura_{clean_id}_{len(p_idxs)}sider.pdf" if len(p_idxs) >= 2 else f"faktura_{clean_id}.pdf"
                             zf.writestr(name, p_buf.getvalue())
                     z_buf.seek(0)
                     st.download_button(label=f"🎁 Download alle {len(chunks)} fakturaer (ZIP)", data=z_buf, file_name="fakturaer.zip", mime="application/zip")
