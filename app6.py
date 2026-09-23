@@ -45,7 +45,6 @@ st.markdown(f"""
     <br><hr><br>
 """, unsafe_allow_html=True)
 
-# 🔍 RETTET FUNKTION: Udtrækker fakturanummeret som en REN tekststreng uden klammer []
 def get_inv_num(text):
     clean = " ".join(text.split())
     low = text.lower()
@@ -53,7 +52,7 @@ def get_inv_num(text):
     if "fakturanr" in low:
         col = re.findall(r":\s*(\d+)", text)
         if col: 
-            return str(col[0]).strip() # Snupper det første rene tal i listen
+            return str(col[0]).strip()
             
     pats = [r"(?:faktura|invoice)(?:\s*nr|\s*no|\s*nummer)?[:.\s]*#?\s*(\d+)", r"(?:inv|fak)[:.\s]*#?\s*(\d+)"]
     for p in pats:
@@ -81,22 +80,31 @@ if st.session_state.menu == "split":
             with st.spinner("Scanner..."):
                 reader = PdfReader(up)
                 chunks = []
+                
                 for idx, page in enumerate(reader.pages):
                     inv_id = get_inv_num(page.extract_text() or "")
-                    if inv_id: chunks.append((inv_id, [idx]))
-                    elif chunks: chunks[-1][1].append(idx)
-                    else: chunks.append(("ukendt", [idx]))
+                    
+                    if inv_id:
+                        # Opret en helt ny faktura-gruppe i listen med [nummer, [sideliste]]
+                        chunks.append([inv_id, [idx]])
+                    else:
+                        if chunks:
+                            # RETTELSE: Vi tilføjer sidetallet til sidelisten indeni den seneste gruppe
+                            chunks[-1][1].append(idx)
+                        else:
+                            chunks.append(["ukendt", [idx]])
+                            
                 if chunks:
                     st.success(f"Fandt {len(chunks)} fakturaer.")
                     z_buf = io.BytesIO()
                     with zipfile.ZipFile(z_buf, "w", zipfile.ZIP_DEFLATED) as zf:
                         for i_id, p_idxs in chunks:
                             writer = PdfWriter()
-                            for p in p_idxs: writer.add_page(reader.pages[p])
+                            for p in p_idxs: 
+                                writer.add_page(reader.pages[p])
                             p_buf = io.BytesIO()
                             writer.write(p_buf)
                             
-                            # Sikrer rene og pæne filnavne i ZIP-filen
                             clean_id = re.sub(r'[\\/*?:"<>|]', "", i_id)
                             name = f"faktura_{clean_id}_{len(p_idxs)}sider.pdf" if len(p_idxs) >= 2 else f"faktura_{clean_id}.pdf"
                             zf.writestr(name, p_buf.getvalue())
